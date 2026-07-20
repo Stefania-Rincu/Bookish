@@ -1,0 +1,33 @@
+from sqlalchemy import Column, Integer, String, CheckConstraint
+from sqlalchemy.orm import relationship
+from app.helpers.database import Base
+
+class Book(Base):
+    # This sets the name of the table in the database
+    __tablename__ = 'Book'
+    __table_args__ = (CheckConstraint('num_copies > 0', name='ck_num_copies'),)
+
+    # Here we outline what columns we want in our database
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    title = Column(String(100), nullable=False)
+    isbn = Column(String(13), nullable=False)
+    num_copies = Column(Integer, nullable=False)
+
+    author_books = relationship('AuthorBook', back_populates='book')
+    user_books = relationship('UserBook', back_populates='book')
+
+    def __init__(self, title, isbn, num_copies):
+        self.title = title
+        self.isbn = isbn
+        self.num_copies = num_copies
+
+    def __repr__(self):
+        return '<id {}>'.format(self.id)
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'isbn': self.isbn,
+            'num_copies': self.num_copies
+        }
