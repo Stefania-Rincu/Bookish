@@ -7,7 +7,7 @@ class UserBook(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     id_user = Column(Integer, ForeignKey('users.id'), nullable=False)
-    id_book = Column(Integer, ForeignKey('Book.id'), nullable=False)
+    id_book = Column(Integer, ForeignKey('book.id'), nullable=False)
     due_return = Column(Date, nullable=False)
 
     user = relationship('User', back_populates='user_books')

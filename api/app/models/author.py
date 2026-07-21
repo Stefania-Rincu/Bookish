@@ -3,10 +3,8 @@ from sqlalchemy.orm import relationship
 from app.helpers.database import Base
 
 class Author(Base):
-    # This sets the name of the table in the database
-    __tablename__ = 'Author'
+    __tablename__ = 'author'
 
-    # Here we outline what columns we want in our database
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     author_name = Column(String(50), nullable=False)
 

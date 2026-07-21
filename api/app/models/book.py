@@ -1,13 +1,14 @@
-from sqlalchemy import Column, Integer, String, CheckConstraint
+from sqlalchemy import Column, Integer, String, CheckConstraint, UniqueConstraint
 from sqlalchemy.orm import relationship
 from app.helpers.database import Base
 
 class Book(Base):
-    # This sets the name of the table in the database
-    __tablename__ = 'Book'
-    __table_args__ = (CheckConstraint('num_copies > 0', name='ck_num_copies'),)
+    __tablename__ = 'book'
+    __table_args__ = (
+        CheckConstraint('num_copies > 0', name='ck_num_copies'),
+        UniqueConstraint('isbn', name='unique_isbn')
+    )
 
-    # Here we outline what columns we want in our database
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     title = Column(String(100), nullable=False)
     isbn = Column(String(13), nullable=False)
