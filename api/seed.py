@@ -1,6 +1,7 @@
 import hashlib
 import os
 from datetime import date
+from sqlalchemy import text
 from app.helpers.database import Session
 from app.models.author import Author
 from app.models.book import Book
@@ -14,6 +15,10 @@ def hash_password(password: str) -> str:
     return f'{salt.hex()}:{key.hex()}'
 
 session = Session()
+
+# Wipe existing data and reset IDs so the seed script can be run multiple times.
+session.execute(text('TRUNCATE TABLE user_books, author_books, users, books, authors RESTART IDENTITY CASCADE'))
+session.commit()
 
 book_1 = Book(title="Harry Potter and the Philosopher's Stone", isbn='9780747532743', num_copies=4)
 book_2 = Book(title='Harry Potter and the Chamber of Secrets', isbn='9781408855669', num_copies=2)
@@ -47,13 +52,13 @@ session.add_all([
 ])
 
 session.add_all([
-    UserBook(id_user=user_1.id, id_book=book_1.id, due_return=date(2025, 7, 3)),
-    UserBook(id_user=user_1.id, id_book=book_2.id, due_return=date(2025, 7, 3)),
-    UserBook(id_user=user_2.id, id_book=book_1.id, due_return=date(2025, 7, 21)),
-    UserBook(id_user=user_2.id, id_book=book_3.id, due_return=date(2025, 7, 13)),
-    UserBook(id_user=user_3.id, id_book=book_3.id, due_return=date(2025, 7, 25)),
-    UserBook(id_user=user_3.id, id_book=book_4.id, due_return=date(2025, 7, 15)),
-    UserBook(id_user=user_4.id, id_book=book_4.id, due_return=date(2025, 7, 30)),
+    UserBook(id_user=user_1.id, id_book=book_1.id, due_return=date(2026, 7, 3)),
+    UserBook(id_user=user_1.id, id_book=book_2.id, due_return=date(2026, 7, 3)),
+    UserBook(id_user=user_2.id, id_book=book_1.id, due_return=date(2026, 7, 21)),
+    UserBook(id_user=user_2.id, id_book=book_3.id, due_return=date(2026, 7, 13)),
+    UserBook(id_user=user_3.id, id_book=book_3.id, due_return=date(2026, 7, 25)),
+    UserBook(id_user=user_3.id, id_book=book_4.id, due_return=date(2026, 7, 15)),
+    UserBook(id_user=user_4.id, id_book=book_4.id, due_return=date(2026, 7, 30)),
 ])
 
 session.commit()

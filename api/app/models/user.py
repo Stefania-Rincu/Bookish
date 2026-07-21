@@ -19,14 +19,3 @@ class User(Base):
         self.first_name = first_name
         self.username = username
         self.password_hash = password_hash
-
-    def __repr__(self):
-        return '<id {}>'.format(self.id)
-
-    def serialize(self):
-        return {
-            'id': self.id,
-            'last_name': self.last_name,
-            'first_name': self.first_name,
-            'username': self.username
-        }

@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from app.helpers.database import Base
 
 class Book(Base):
-    __tablename__ = 'book'
+    __tablename__ = 'books'
     __table_args__ = (
         CheckConstraint('num_copies > 0', name='ck_num_copies'),
         UniqueConstraint('isbn', name='unique_isbn')
@@ -21,14 +21,3 @@ class Book(Base):
         self.title = title
         self.isbn = isbn
         self.num_copies = num_copies
-
-    def __repr__(self):
-        return '<id {}>'.format(self.id)
-
-    def serialize(self):
-        return {
-            'id': self.id,
-            'title': self.title,
-            'isbn': self.isbn,
-            'num_copies': self.num_copies
-        }
