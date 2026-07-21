@@ -5,8 +5,8 @@ from typing import Any
 
 from app.helpers.database import Base
 from app.helpers.database_connection_string import get_database_connection_string
+from app.models import Book, Author, AuthorBook, User, UserBook
 
-from app.models.example import Example
 
 def run_migrations_offline(context: Any, config: Any, target_metadata: Any):
     pass
