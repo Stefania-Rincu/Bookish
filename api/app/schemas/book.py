@@ -4,6 +4,7 @@ class BookCreate(BaseModel):
     title: str
     isbn: str
     num_copies: int
+    authors: list[str]
 
 class BookOut(BaseModel):
     id: int
