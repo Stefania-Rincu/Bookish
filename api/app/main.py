@@ -1,6 +1,7 @@
 from fastapi import FastAPI 
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.controllers import auth
 from app.controllers import bookish
 from app.controllers import books
 
@@ -13,5 +14,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router)
 app.include_router(bookish.router)
 app.include_router(books.router)

@@ -9,6 +9,7 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_HOST: ${DB_HOSTNAME}
+      SECRET_KEY: ${SECRET_KEY}
     volumes:
       - ./api:/api
     depends_on:
