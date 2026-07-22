@@ -19,4 +19,5 @@ class CheckedOutBook(BaseModel):
     title: str
     isbn: str
     due_return: date
+    authors: list[str]
     model_config = ConfigDict(from_attributes=True)
