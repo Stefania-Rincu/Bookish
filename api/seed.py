@@ -1,5 +1,3 @@
-import hashlib
-import os
 from datetime import date
 from sqlalchemy import text
 from app.helpers.database import Session
@@ -8,11 +6,7 @@ from app.models.book import Book
 from app.models.author_book import AuthorBook
 from app.models.user import User
 from app.models.user_book import UserBook
-
-def hash_password(password: str) -> str:
-    salt = os.urandom(32)
-    key = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000)
-    return f'{salt.hex()}:{key.hex()}'
+from app.services.auth import get_password_hash
 
 session = Session()
 
@@ -33,10 +27,10 @@ author_4 = Author(author_name='Caroline Jarrett')
 author_5 = Author(author_name='Gerry Gaffney')
 author_6 = Author(author_name='Steve Krug')
 
-user_1 = User('Doe', 'Jane', 'jane_doe', hash_password('jane123'))
-user_2 = User('Something', 'Joe', 'joe_something', hash_password('joe123'))
-user_3 = User('Somethingelse', 'John', 'john_somethingelse', hash_password('john123'))
-user_4 = User('Sparrow', 'Jack', 'jack_sparrow', hash_password('jack123'))
+user_1 = User('Doe', 'Jane', 'jane_doe', get_password_hash('jane123'))
+user_2 = User('Something', 'Joe', 'joe_something', get_password_hash('joe123'))
+user_3 = User('Somethingelse', 'John', 'john_somethingelse', get_password_hash('john123'))
+user_4 = User('Sparrow', 'Jack', 'jack_sparrow', get_password_hash('jack123'))
 
 session.add_all([book_1, book_2, book_3, book_4, book_5, author_1, author_2, author_3, author_4, author_5, author_6, user_1, user_2, user_3, user_4])
 session.flush()
