@@ -5,10 +5,12 @@ class UserBookCreate(BaseModel):
     id_user: int
     id_book: int
     due_return: date
+    returned_date: date | None = None
 
 class UserBookOut(BaseModel):
     id: int
     id_user: int
     id_book: int
     due_return: date
+    returned_date: date | None = None
     model_config = ConfigDict(from_attributes=True)

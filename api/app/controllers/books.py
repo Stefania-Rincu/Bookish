@@ -1,4 +1,3 @@
-from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
@@ -70,7 +69,7 @@ def get_checked_out_books(
         .options(joinedload(UserBook.book))
         .filter(
             UserBook.id_user == current_user.id,
-            UserBook.due_return >= date.today(),
+            UserBook.returned_date.is_(None),
         )
         .all()
     )
@@ -79,7 +78,7 @@ def get_checked_out_books(
             "id": user_book.book.id,
             "title": user_book.book.title,
             "isbn": user_book.book.isbn,
-            "due_return": user_book.due_return,
+            "due_return": user_book.due_return
         }
         for user_book in user_books
     ]

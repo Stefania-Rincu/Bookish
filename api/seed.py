@@ -46,15 +46,15 @@ session.add_all([
 ])
 
 session.add_all([
-    UserBook(id_user=user_1.id, id_book=book_1.id, due_return=date(2026, 7, 3)),
-    UserBook(id_user=user_1.id, id_book=book_2.id, due_return=date(2026, 7, 3)),
-    UserBook(id_user=user_1.id, id_book=book_3.id, due_return=date(2026, 7, 25)),
-    UserBook(id_user=user_1.id, id_book=book_4.id, due_return=date(2026, 7, 25)),
-    UserBook(id_user=user_2.id, id_book=book_1.id, due_return=date(2026, 7, 22)),
-    UserBook(id_user=user_2.id, id_book=book_3.id, due_return=date(2026, 7, 13)),
-    UserBook(id_user=user_3.id, id_book=book_3.id, due_return=date(2026, 7, 25)),
-    UserBook(id_user=user_3.id, id_book=book_4.id, due_return=date(2026, 7, 15)),
-    UserBook(id_user=user_4.id, id_book=book_4.id, due_return=date(2026, 7, 30)),
+    UserBook(id_user=user_1.id, id_book=book_1.id, due_return=date(2026, 7, 3), returned_date=date(2026, 7, 2)),
+    UserBook(id_user=user_1.id, id_book=book_2.id, due_return=date(2026, 7, 3), returned_date=date(2026, 7, 2)),
+    UserBook(id_user=user_1.id, id_book=book_3.id, due_return=date(2026, 7, 25), returned_date=None),
+    UserBook(id_user=user_1.id, id_book=book_4.id, due_return=date(2026, 7, 25), returned_date=None),
+    UserBook(id_user=user_2.id, id_book=book_1.id, due_return=date(2026, 7, 22), returned_date=None),
+    UserBook(id_user=user_2.id, id_book=book_3.id, due_return=date(2026, 7, 13), returned_date=date(2026, 7, 9)),
+    UserBook(id_user=user_3.id, id_book=book_3.id, due_return=date(2026, 7, 25), returned_date=None),
+    UserBook(id_user=user_3.id, id_book=book_4.id, due_return=date(2026, 7, 15), returned_date=date(2026, 7, 1)),
+    UserBook(id_user=user_4.id, id_book=book_4.id, due_return=date(2026, 7, 30), returned_date=None),
 ])
 
 session.commit()
