@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session as SessionType
 from typing import List
 
@@ -16,20 +17,43 @@ def get_books(db: SessionType = Depends(get_db)):
 
 @router.post("/books", response_model=BookOut, status_code=status.HTTP_201_CREATED)
 def create_book(book: BookCreate, db: SessionType = Depends(get_db)):
-    db_book = Book(title=book.title, isbn=book.isbn, num_copies=book.num_copies)
-    db.add(db_book)
-    db.flush()
+    try:
+        db_book = Book(title=book.title, isbn=book.isbn, num_copies=book.num_copies)
+        db.add(db_book)
+        db.flush()
 
-    for author_name in book.authors:
-        author = db.query(Author).filter(
-            func.lower(Author.author_name) == author_name.lower()
-        ).first()
-        if not author:
-            author = Author(author_name=author_name)
-            db.add(author)
-            db.flush()
-        db.add(AuthorBook(id_author=author.id, id_book=db_book.id))
+        for author_name in book.authors:
+            author = db.query(Author).filter(
+                func.lower(Author.author_name) == author_name.lower()
+            ).first()
+            if not author:
+                author = Author(author_name=author_name)
+                db.add(author)
+                db.flush()
+            db.add(AuthorBook(id_author=author.id, id_book=db_book.id))
 
-    db.commit()
-    db.refresh(db_book)
-    return db_book
+        db.commit()
+        db.refresh(db_book)
+        return db_book
+    except IntegrityError as exc:
+        db.rollback()
+        error_msg = str(exc.orig)
+        if "unique_isbn" in error_msg:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="A book with this ISBN already exists",
+            )
+        if "ck_num_copies" in error_msg:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Number of copies must be greater than 0",
+            )
+        if "unique_author_book" in error_msg:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Author is already linked to this book",
+            )
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Database integrity error",
+        )
