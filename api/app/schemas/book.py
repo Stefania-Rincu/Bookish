@@ -1,3 +1,4 @@
+from datetime import date
 from pydantic import BaseModel, ConfigDict
 
 class BookCreate(BaseModel):
@@ -11,4 +12,11 @@ class BookOut(BaseModel):
     title: str
     isbn: str
     num_copies: int
+    model_config = ConfigDict(from_attributes=True)
+
+class CheckedOutBook(BaseModel):
+    id: int
+    title: str
+    isbn: str
+    due_return: date
     model_config = ConfigDict(from_attributes=True)

@@ -1,14 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session as SessionType
+from sqlalchemy.orm import Session as SessionType, joinedload
 from typing import List
-
-from app.dependencies import get_db
+from app.dependencies import get_current_user, get_db
 from app.models.author import Author
 from app.models.author_book import AuthorBook
 from app.models.book import Book
-from app.schemas.book import BookCreate, BookOut
+from app.models.user import User
+from app.models.user_book import UserBook
+from app.schemas.book import BookCreate, BookOut, CheckedOutBook
 router = APIRouter(tags=["books"])
 
 @router.get("/books", response_model=List[BookOut])
@@ -57,3 +58,24 @@ def create_book(book: BookCreate, db: SessionType = Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Database integrity error",
         )
+
+@router.get("/books/checked-out", response_model=List[CheckedOutBook])
+def get_checked_out_books(
+    current_user: User = Depends(get_current_user),
+    db: SessionType = Depends(get_db)
+):
+    user_books = (
+        db.query(UserBook)
+        .options(joinedload(UserBook.book))
+        .filter(UserBook.id_user == current_user.id)
+        .all()
+    )
+    return [
+        {
+            "id": user_book.book.id,
+            "title": user_book.book.title,
+            "isbn": user_book.book.isbn,
+            "due_return": user_book.due_return,
+        }
+        for user_book in user_books
+    ]
