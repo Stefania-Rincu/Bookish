@@ -48,7 +48,9 @@ session.add_all([
 session.add_all([
     UserBook(id_user=user_1.id, id_book=book_1.id, due_return=date(2026, 7, 3)),
     UserBook(id_user=user_1.id, id_book=book_2.id, due_return=date(2026, 7, 3)),
-    UserBook(id_user=user_2.id, id_book=book_1.id, due_return=date(2026, 7, 21)),
+    UserBook(id_user=user_1.id, id_book=book_3.id, due_return=date(2026, 7, 25)),
+    UserBook(id_user=user_1.id, id_book=book_4.id, due_return=date(2026, 7, 25)),
+    UserBook(id_user=user_2.id, id_book=book_1.id, due_return=date(2026, 7, 22)),
     UserBook(id_user=user_2.id, id_book=book_3.id, due_return=date(2026, 7, 13)),
     UserBook(id_user=user_3.id, id_book=book_3.id, due_return=date(2026, 7, 25)),
     UserBook(id_user=user_3.id, id_book=book_4.id, due_return=date(2026, 7, 15)),
