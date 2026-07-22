@@ -2,9 +2,18 @@ import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 import bcrypt
+from dotenv import load_dotenv
 from jose import JWTError, jwt
 
-SECRET_KEY = os.getenv("SECRET_KEY")
+def get_secret_key():
+    load_dotenv()
+    secret_key = os.getenv("SECRET_KEY")
+    if not secret_key:
+        raise EnvironmentError("SECRET_KEY environment variable is not set.")
+    return secret_key
+
+
+SECRET_KEY = get_secret_key()
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 

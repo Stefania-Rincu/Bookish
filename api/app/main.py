@@ -14,6 +14,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth.auth_controller.router)
+app.include_router(auth.router)
 app.include_router(bookish.router)
 app.include_router(books.router)
