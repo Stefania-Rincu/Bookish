@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import JSONResponse
 from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session as SessionType, joinedload, selectinload
@@ -11,7 +12,7 @@ from app.models.user import User
 from app.models.user_book import UserBook
 from app.schemas.book import BookAvailability, BookCreate, BookOut, CheckedOutBook, PagedBooks
 from app.schemas.user_book import Borrower
-router = APIRouter(tags=["books"])
+router = APIRouter(tags=["books"], dependencies=[Depends(get_current_user)])
 
 @router.get("/books", response_model=PagedBooks)
 def get_books(
@@ -61,10 +62,7 @@ def search_books(
         .all()
     )
     if not books:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No book found",
-        )
+        return JSONResponse(content={"message": "No book found"})
     return [
         BookOut(
             id=book.id,
