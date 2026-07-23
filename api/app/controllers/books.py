@@ -9,7 +9,8 @@ from app.models.author_book import AuthorBook
 from app.models.book import Book
 from app.models.user import User
 from app.models.user_book import UserBook
-from app.schemas.book import BookCreate, BookOut, CheckedOutBook, PagedBooks
+from app.schemas.book import BookAvailability, BookCreate, BookOut, CheckedOutBook, PagedBooks
+from app.schemas.user_book import Borrower
 router = APIRouter(tags=["books"])
 
 @router.get("/books", response_model=PagedBooks)
@@ -130,6 +131,45 @@ def create_book(book: BookCreate, db: SessionType = Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Database integrity error",
         )
+
+@router.get("/books/{book_id}/availability", response_model=BookAvailability)
+def get_book_availability(book_id: int, db: SessionType = Depends(get_db)):
+    book = (
+        db.query(Book)
+        .options(selectinload(Book.author_books).selectinload(AuthorBook.author))
+        .filter(Book.id == book_id)
+        .first()
+    )
+    if not book:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Book not found",
+        )
+
+    active_loans = (
+        db.query(UserBook)
+        .options(joinedload(UserBook.user))
+        .filter(
+            UserBook.id_book == book_id,
+            UserBook.returned_date.is_(None),
+        )
+        .all()
+    )
+    return BookAvailability(
+        id=book.id,
+        title=book.title,
+        isbn=book.isbn,
+        num_copies=book.num_copies,
+        authors=[ab.author.author_name for ab in book.author_books],
+        available_copies=book.num_copies - len(active_loans),
+        borrowers=[
+            Borrower(
+                name=f"{loan.user.first_name} {loan.user.last_name}",
+                due_return=loan.due_return,
+            )
+            for loan in active_loans
+        ],
+    )
 
 @router.get("/books/checked-out", response_model=List[CheckedOutBook])
 def get_checked_out_books(
