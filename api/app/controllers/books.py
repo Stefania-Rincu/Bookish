@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session as SessionType, joinedload, selectinload
 from typing import List
@@ -42,6 +42,38 @@ def get_books(
         page=page,
         page_size=page_size,
     )
+
+@router.get("/books/search", response_model=List[BookOut])
+def search_books(
+    q: str = Query(..., min_length=1),
+    db: SessionType = Depends(get_db),
+):
+    pattern = f"%{q.strip()}%"
+    books = (
+        db.query(Book)
+        .outerjoin(AuthorBook, AuthorBook.id_book == Book.id)
+        .outerjoin(Author, Author.id == AuthorBook.id_author)
+        .filter(or_(Book.title.ilike(pattern), Author.author_name.ilike(pattern)))
+        .distinct()
+        .options(selectinload(Book.author_books).selectinload(AuthorBook.author))
+        .order_by(Book.title.asc(), Book.id.asc())
+        .all()
+    )
+    if not books:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No book found",
+        )
+    return [
+        BookOut(
+            id=book.id,
+            title=book.title,
+            isbn=book.isbn,
+            num_copies=book.num_copies,
+            authors=[ab.author.author_name for ab in book.author_books],
+        )
+        for book in books
+    ]
 
 @router.post("/books", response_model=BookOut, status_code=status.HTTP_201_CREATED)
 def create_book(book: BookCreate, db: SessionType = Depends(get_db)):
