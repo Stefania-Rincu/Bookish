@@ -12,12 +12,14 @@ class BookOut(BaseModel):
     title: str
     isbn: str
     num_copies: int
-    model_config = ConfigDict(from_attributes=True)
-
-class CheckedOutBook(BaseModel):
-    id: int
-    title: str
-    isbn: str
-    due_return: date
     authors: list[str]
     model_config = ConfigDict(from_attributes=True)
+
+class CheckedOutBook(BookOut):
+    due_return: date
+
+class PagedBooks(BaseModel):
+    items: list[BookOut]
+    total: int
+    page: int
+    page_size: int

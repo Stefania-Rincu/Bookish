@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session as SessionType, joinedload, selectinload
@@ -9,12 +9,39 @@ from app.models.author_book import AuthorBook
 from app.models.book import Book
 from app.models.user import User
 from app.models.user_book import UserBook
-from app.schemas.book import BookCreate, BookOut, CheckedOutBook
+from app.schemas.book import BookCreate, BookOut, CheckedOutBook, PagedBooks
 router = APIRouter(tags=["books"])
 
-@router.get("/books", response_model=List[BookOut])
-def get_books(db: SessionType = Depends(get_db)):
-    return db.query(Book).all()
+@router.get("/books", response_model=PagedBooks)
+def get_books(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(10, ge=1, le=100),
+    db: SessionType = Depends(get_db),
+):
+    total = db.query(Book).count()
+    items = (
+        db.query(Book)
+        .options(selectinload(Book.author_books).selectinload(AuthorBook.author))
+        .order_by(Book.title.asc(), Book.id.asc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+        .all()
+    )
+    return PagedBooks(
+        items=[
+            BookOut(
+                id=book.id,
+                title=book.title,
+                isbn=book.isbn,
+                num_copies=book.num_copies,
+                authors=[ab.author.author_name for ab in book.author_books],
+            )
+            for book in items
+        ],
+        total=total,
+        page=page,
+        page_size=page_size,
+    )
 
 @router.post("/books", response_model=BookOut, status_code=status.HTTP_201_CREATED)
 def create_book(book: BookCreate, db: SessionType = Depends(get_db)):
@@ -42,7 +69,13 @@ def create_book(book: BookCreate, db: SessionType = Depends(get_db)):
 
         db.commit()
         db.refresh(db_book)
-        return db_book
+        return BookOut(
+            id=db_book.id,
+            title=db_book.title,
+            isbn=db_book.isbn,
+            num_copies=db_book.num_copies,
+            authors=authors,
+        )
     except IntegrityError as exc:
         db.rollback()
         error_msg = str(exc.orig)
@@ -85,12 +118,13 @@ def get_checked_out_books(
         .all()
     )
     return [
-        {
-            "id": user_book.book.id,
-            "title": user_book.book.title,
-            "isbn": user_book.book.isbn,
-            "due_return": user_book.due_return,
-            "authors": [ab.author.author_name for ab in user_book.book.author_books],
-        }
+        CheckedOutBook(
+            id=user_book.book.id,
+            title=user_book.book.title,
+            isbn=user_book.book.isbn,
+            num_copies=user_book.book.num_copies,
+            due_return=user_book.due_return,
+            authors=[ab.author.author_name for ab in user_book.book.author_books],
+        )
         for user_book in user_books
     ]
