@@ -14,3 +14,7 @@ class UserBookOut(BaseModel):
     due_return: date
     returned_date: date | None = None
     model_config = ConfigDict(from_attributes=True)
+
+class Borrower(BaseModel):
+    name: str
+    due_return: date

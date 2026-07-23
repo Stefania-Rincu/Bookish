@@ -10,7 +10,7 @@ class Book(Base):
     )
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    title = Column(String(100), nullable=False)
+    title = Column(String(100), nullable=False, index=True)
     isbn = Column(String(13), nullable=False)
     num_copies = Column(Integer, nullable=False)
 
